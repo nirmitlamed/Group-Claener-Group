@@ -1,59 +1,43 @@
-from pyrogram.types import *
-import json
+from pyrogram import Client, filters
+from pyrogram.types import Message, CallbackQuery
+from Group_Cleaner.helper import keyboards as kyb, json_load, json_dump
 
-TEXT_START = """
-היי {}.
+msg_file = 'Group_Cleaner/msg.json'  # path of text-file for msg's
+users_list = 'Group_Cleaner/users.json'  # path for file for users DB
 
-**רוצים להוסיף אפשרות לתגובות בערוץ שלכם, ללא שתצטרכו לתחזק קבוצת דיון?
-פשוט פתחו קבוצת דיון, הוסיפו את הרובוט לקבוצה (עם ניהול), ואנשים לא יוכלו להצטרף, אולם עדיין יוכלו להגיב.**
+# lambda func for get lang of user
+get_lang = lambda client, message: client.get_users([message.from_user.id])[0].language_code \
+    if client.get_users([message.from_user.id])[0].language_code in ['he', 'en'] else 'en'
 
-שלחו /help לעוד פרטים ועזרה.
+# lambda func for mention user
+formating = lambda message: f'[{message.from_user.first_name}](tg://user?id={message.from_user.id})'
 
-רובוט ישראלי מבית [רובוטריק](t.me/RobotTrick) 😎🇮🇱
-הרובוט נוצר ע"י [מקליד תמיד](t.me/m100achuz).
-"""
 
-TEXT_HELP = """
-**Group Cleaner Bot**
+@Client.on_message(filters.private & filters.command(["start", "help"]))
+# the Answer bot for commands '/start' or '/help'
+def start_msg(client: Client, message: Message):
+    lang = get_lang(client, message)
+    message.reply(json_load(msg_file)[message.command[0]][lang].format(formating(message)),
+                  disable_web_page_preview=True, reply_markup=kyb[message.command[0] + "_" + lang])
 
-היי, רובוט זה יוכל לעזור לכם במקרה די נפוץ, נניח ויש לכם ערוץ והנכם מעוניינים לאפשר לאנשים להגיב על הודעות בו, אולם כרגע טלגרם מאפשרת תגובות בערוצים רק אם מקושרת אליהם קבוצת דיון. סיכויים גבוהים שלא תרצו לפתוח קבוצה במיוחד בשביל תגובות, נכון? מה עושים?
+    # save user to list users DB
+    all_users: list = json_load(users_list)
+    if message.from_user.id not in all_users:
+        all_users.append(message.from_user.id)
+        json_dump(all_users, users_list)
 
-דבר ראשון תפתחו קבוצת דיון, בכל אופן. הקבוצה לא חייבת להיות ציבורית או משהו מיוחד.. תקראו לה איך שאתם רוצים, אתם ממש לא צריכים להשקיע בזה מחשבה.
-עכשיו תוסיפו את הרובוט לקבוצה. תוכלו ללחוץ [כאן](t.me/GroupCleanerHebBot?startgroup=start) ולבחור קבוצה.
-הוספתם לקבוצה? מעולה. **עכשיו תנו לרובוט ניהול, לפחות מחיקת הודעות והסרת משתמשים.**
 
-מרגע זה והלאה, כל משתמש שיצטרף לקבוצה - יוסר מהקבוצה אוטומטית על ידי הרובוט, ומיד לאחר מכן מוצא מהרשימה השחורה, כדי שיוכל להגיב בערוץ.
+@Client.on_callback_query()
+# the Answer bot for callback quary's - change lang
+async def edit_lang(_: Client, call: CallbackQuery):
+    await call.message.edit_text(
+        json_load(msg_file)[call.data[:-3]][call.data[-2:]].format(formating(call)),
+        disable_web_page_preview=True,
+        reply_markup=kyb[call.data])
 
-[חשוב! שימו לב שלא קיים בקבוצה רובוט שמוחק הודעות הצטרפות. אם יש - תאלצו להסיר אותו.]
 
-מה קורה אם יש לכם משתמש שאתם מעוניינים שיוכל להיות בקבוצה בכל אופן? פשוט הוסיפו אותו לקבוצה ישר כמנהל. הרובוט כמובן לא מסיר מנהלים מהקבוצה.
-
-פיצ'ר נוסף שקיים ברובוט הוא ניקוי הקבוצה. אם יש לכם קבוצת דיון קיימת עם משתמשים, ואתם רוצים לוותר עליה, אחרי שהוספתם את הרובוט לקבוצה, שלחו בקבוצה `/clean` והרובוט יסיר את כל המשתמשים, שוב - חוץ ממנהלים. כמובן שהוא אוטומטית יסיר אותם גם מהרשימה השחורה, **אולם הייתי ממליץ פה ושם לבדוק אם הרשימה השחורה בקבוצה ריקה.**
-
-**הרובוט לא דורש שום ניהול בערוץ וכדומה.**
-לעוד הצעות והערות ניתן לפנות אלי [בפרטי](t.me/m100achuz) ואשתדל לעזור כמיטב יכולתי.
-הסתבכתם? יש לכם שאלה כלשהיא בקשר לרובוט זה או אחר? כנסו [לקבוצת העזרה](https://t.me/robot_trick_Group) של [רובוטריק](https://t.me/RobotTrick) 😋
-"""
-
-def private(c, m):
-	text = TEXT_START.format(f"[{m.from_user.first_name}](tg://user?id={m.from_user.id})")
-	m.reply(text, disable_web_page_preview=True,
-			reply_markup=InlineKeyboardMarkup(
-				[[InlineKeyboardButton("לערוץ עדכוני רובוטים 🍕", url= 't.me/m100achuzBots')]]
-			))
-	path = 'Group_Cleaner/users.json'
-	with open(path, 'r') as old_list:
-		users = json.load(old_list)
-	if m.from_user.id not in users:
-		users.append(m.from_user.id)
-		with open(path, 'w') as new_list:
-			json.dump(users, new_list, indent=4)
-
-def clean_private(c,m):
-	m.reply("שלחו פקודה זו בקבוצתכם כדי לנקות אותה ממגיבים.")
-
-def help(c, m):
-	m.reply(TEXT_HELP, disable_web_page_preview=True, reply_markup=InlineKeyboardMarkup(
-		[[InlineKeyboardButton('לערוץ האישי שלי 👺', url='t.me/m100achuzYou')],
-		 [InlineKeyboardButton('ערוץ עדכוני רובוטים ☢', url='t.me/m100achuzBots')]]
-	))
+@Client.on_message(filters.private & filters.command('clean'))
+# the Answer bot for '/clean' command, on private
+async def clean_private(_, message: Message):
+    await message.reply(
+        "שלחו פקודה זו בקבוצתכם כדי לנקות אותה ממגיבים.\nSend this command to your group to clear it of responders.")
