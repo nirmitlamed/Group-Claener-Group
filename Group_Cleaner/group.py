@@ -8,7 +8,7 @@ from Group_Cleaner.helper import json_load, json_dump
 admin_check = lambda _, c, m: True if m.chat.get_member(m.from_user.id).status \
                                       in ["creator", "administrator"] else False  # func for check if user is admin
 
-groups_list = 'groups.json'
+groups_list = 'Group_Cleaner/groups.json'
 
 
 @Client.on_message(filters.group & filters.create(admin_check) &
@@ -50,9 +50,6 @@ def delete_msg_count(_: Client, call: CallbackQuery):
 @Client.on_message(filters.group & filters.new_chat_members)
 # func for remove new_members
 async def group(_: Client, message: Message):
-    # saved group to DB
-    if message.chat.id not in json_load(groups_list):
-        json_dump(json_load(groups_list).append(message.chat.id), groups_list)
 
     for new_member in message.new_chat_members:
         try:
@@ -67,6 +64,11 @@ async def group(_: Client, message: Message):
 
     await message.delete()  # delete the message "<user> joined the group"
 
+    # saved group to DB
+    all_groups: list = json_load(groups_list)
+    if message.chat.id not in all_groups:
+        all_groups.append(message.chat.id)
+        json_dump(all_groups, groups_list)
 
 @Client.on_message(filters.group & filters.service, group=1)
 # func for delete other service message
