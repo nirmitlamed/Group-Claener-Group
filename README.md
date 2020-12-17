@@ -1,4 +1,7 @@
 # Group-Claener-Bot
-בוט טלגרם המיועד לאפשר תגובות בערוצים, גם ללא קבוצת דיון פעילה. הרובוט מסיר את כל המשתמשים מהקבוצת דיון, ומחזיר להם את ההרשאות.
+
+telegram bot for save your discusion group clean from members.
+
+for translate this bot- edit [this file](https://github.com/M100achuz2/Group-Claener-Group/blob/main/Group_Cleaner/msg.json).
 
 
