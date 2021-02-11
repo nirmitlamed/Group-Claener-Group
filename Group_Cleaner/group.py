@@ -49,12 +49,17 @@ def delete_msg_count(_: Client, call: CallbackQuery):
 
 @Client.on_message(filters.group & filters.new_chat_members)
 # func for remove new_members
-async def group(_: Client, message: Message):
+async def group(client: Client, message: Message):
+    me = await client.get_me()
 
     for new_member in message.new_chat_members:
+        if me.id == new_member.id:
+            continue
+
         try:
             id_member = new_member.id
             kick = await message.chat.kick_member(id_member)  # kick member
+
             await message.chat.unban_member(id_member)  # remove member from black_list
 
             if type(kick) != bool:
@@ -69,6 +74,7 @@ async def group(_: Client, message: Message):
     if message.chat.id not in all_groups:
         all_groups.append(message.chat.id)
         json_dump(all_groups, groups_list)
+
 
 @Client.on_message(filters.group & filters.service, group=1)
 # func for delete other service message
