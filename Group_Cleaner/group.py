@@ -62,7 +62,7 @@ async def group(client: Client, message: Message):
             id_member = new_member.id
             kick = await message.chat.kick_member(id_member)  # kick member
 
-            await asyncio.sleep(10)
+            await asyncio.sleep(20)
 
             await message.chat.unban_member(id_member)  # remove member from black_list
 
