@@ -1,3 +1,5 @@
+import asyncio
+
 from pyrogram import Client, filters  # class pyrogram
 from pyrogram.types import Message, InlineKeyboardButton, \
     InlineKeyboardMarkup, CallbackQuery  # class pyrogram
@@ -59,6 +61,8 @@ async def group(client: Client, message: Message):
         try:
             id_member = new_member.id
             kick = await message.chat.kick_member(id_member)  # kick member
+
+            await asyncio.sleep(10)
 
             await message.chat.unban_member(id_member)  # remove member from black_list
 
