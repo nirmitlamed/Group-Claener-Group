@@ -1,5 +1,4 @@
-import asyncio
-import time
+import aioschedule as schedule
 
 from pyrogram import Client, filters  # class pyrogram
 from pyrogram.types import Message, InlineKeyboardButton, \
@@ -7,8 +6,6 @@ from pyrogram.types import Message, InlineKeyboardButton, \
 from pyrogram.errors.exceptions.bad_request_400 import UserIdInvalid  # telegram error
 
 from Group_Cleaner.helper import json_load, json_dump
-
-import aioschedule as schedule
 
 
 groups_list = 'Group_Cleaner/groups.json'
