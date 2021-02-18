@@ -3,16 +3,26 @@ import aioschedule as schedule
 from pyrogram import Client, filters  # class pyrogram
 from pyrogram.types import Message, InlineKeyboardButton, \
     InlineKeyboardMarkup, CallbackQuery  # class pyrogram
-from pyrogram.errors.exceptions.bad_request_400 import UserIdInvalid  # telegram error
+from pyrogram.errors.exceptions.bad_request_400 import UserIdInvalid, UserNotParticipant  # telegram error
 
 from Group_Cleaner.helper import json_load, json_dump
-
 
 groups_list = 'Group_Cleaner/groups.json'
 
 
-def is_admin_filter(_,__,msg: Message):
-    return not msg.from_user or (msg.chat.get_member(msg.from_user.id).status in ("creator", "administrator"))
+def is_admin_filter(_, __, msg: Message):
+    if not msg.from_user:
+        return True
+
+    try:
+        member = msg.chat.get_member(msg.from_user.id)
+        if member.status in ("creator", "administrator"):
+            return True
+    except UserNotParticipant:
+        return False
+
+    return False
+
 
 @Client.on_message(filters.group & filters.create(is_admin_filter) &
                    filters.command(["clean", 'clean@GroupCleanerHebBot']))
