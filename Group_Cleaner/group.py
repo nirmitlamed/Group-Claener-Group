@@ -92,6 +92,8 @@ async def group(client: Client, message: Message):
 
 
 async def unban(message, member_id):
+    print('Unbanning')
+
     await message.chat.unban_member(member_id)  # remove member from black_list
     return schedule.CancelJob
 
