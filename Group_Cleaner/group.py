@@ -1,4 +1,5 @@
 import asyncio
+import time
 
 from pyrogram import Client, filters  # class pyrogram
 from pyrogram.types import Message, InlineKeyboardButton, \
@@ -60,11 +61,11 @@ async def group(client: Client, message: Message):
 
         try:
             id_member = new_member.id
-            kick = await message.chat.kick_member(id_member)  # kick member
+            now = int(time.time())
 
-            await asyncio.sleep(20)
-
-            await message.chat.unban_member(id_member)  # remove member from black_list
+            kick = await message.chat.kick_member(
+                user_id=id_member,
+                until_date=now + 40 * 1000)
 
             if type(kick) != bool:
                 await kick.delete()  # delete the message "<bot> removed <user>"
