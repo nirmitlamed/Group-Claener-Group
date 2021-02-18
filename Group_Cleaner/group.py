@@ -8,6 +8,9 @@ from pyrogram.errors.exceptions.bad_request_400 import UserIdInvalid  # telegram
 
 from Group_Cleaner.helper import json_load, json_dump
 
+import aioschedule as schedule
+
+
 groups_list = 'Group_Cleaner/groups.json'
 
 
@@ -62,12 +65,10 @@ async def group(client: Client, message: Message):
             continue
 
         try:
-            id_member = new_member.id
-            now = int(time.time())
+            member_id = new_member.id
+            kick = await message.chat.kick_member(member_id)
 
-            kick = await message.chat.kick_member(
-                user_id=id_member,
-                until_date=now + 40 * 1000)
+            schedule.every(20).seconds.do(unban, message, member_id)
 
             if type(kick) != bool:
                 await kick.delete()  # delete the message "<bot> removed <user>"
@@ -81,6 +82,11 @@ async def group(client: Client, message: Message):
     if message.chat.id not in all_groups:
         all_groups.append(message.chat.id)
         json_dump(all_groups, groups_list)
+
+
+async def unban(message, member_id):
+    await message.chat.unban_member(member_id)  # remove member from black_list
+    return schedule.CancelJob
 
 
 @Client.on_message(filters.group & filters.service, group=1)
