@@ -8,8 +8,14 @@ from pyrogram.errors.exceptions.bad_request_400 import UserIdInvalid  # telegram
 
 from Group_Cleaner.helper import json_load, json_dump
 
-admin_check = lambda _, c, m: True if m.chat.get_member(m.from_user.id).status \
-                                      in ["creator", "administrator"] else False  # func for check if user is admin
+
+def admin_check(c, m):
+    print('c + ' + c)
+    print('m + ' + m)
+    if m.chat.get_member(m.from_user.id).status in ["creator", "administrator"]:
+        return True
+    return False
+
 
 groups_list = 'Group_Cleaner/groups.json'
 
@@ -21,7 +27,6 @@ groups_list = 'Group_Cleaner/groups.json'
 async def clean_group(client: Client, message: Message, name=None):
     # check if bot is admin
     me = await client.get_me()
-    print(me)
     get_me = await message.chat.get_member(user_id=me.id)
     if get_me.status != "administrator":
         await message.reply("הרובוט דורש ניהול!\nThe robot requires management!")
