@@ -9,7 +9,8 @@ from pyrogram.errors.exceptions.bad_request_400 import UserIdInvalid  # telegram
 from Group_Cleaner.helper import json_load, json_dump
 
 
-def admin_check(c, m):
+def admin_check(a, c, m):
+    print('a + ' + a)
     print('c + ' + c)
     print('m + ' + m)
     if m.chat.get_member(m.from_user.id).status in ["creator", "administrator"]:
