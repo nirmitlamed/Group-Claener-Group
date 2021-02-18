@@ -21,6 +21,7 @@ groups_list = 'Group_Cleaner/groups.json'
 async def clean_group(client: Client, message: Message, name=None):
     # check if bot is admin
     me = await client.get_me()
+    print(me)
     get_me = await message.chat.get_member(user_id=me.id)
     if get_me.status != "administrator":
         await message.reply("הרובוט דורש ניהול!\nThe robot requires management!")
