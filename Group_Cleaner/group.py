@@ -1,7 +1,6 @@
 import asyncio
 
 import aiojobs
-import aioschedule as schedule
 
 from pyrogram import Client, filters  # class pyrogram
 from pyrogram.types import Message, InlineKeyboardButton, \
