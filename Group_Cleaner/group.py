@@ -1,3 +1,6 @@
+import asyncio
+
+import aiojobs
 import aioschedule as schedule
 
 from pyrogram import Client, filters  # class pyrogram
@@ -67,15 +70,19 @@ def delete_msg_count(_: Client, call: CallbackQuery):
 async def group(client: Client, message: Message):
     me = await client.get_me()
 
+    scheduler = await aiojobs.create_scheduler()
+
     for new_member in message.new_chat_members:
         if me.id == new_member.id:
             continue
 
         try:
             member_id = new_member.id
+
+            print(f'Kicking {member_id} from {message.chat.id}')
             kick = await message.chat.kick_member(member_id)
 
-            schedule.every(20).seconds.do(unban, message, member_id)
+            await scheduler.spawn(unban(message, member_id))
 
             if type(kick) != bool:
                 await kick.delete()  # delete the message "<bot> removed <user>"
@@ -92,10 +99,11 @@ async def group(client: Client, message: Message):
 
 
 async def unban(message, member_id):
-    print('Unbanning')
+    print(f'Unbanning {member_id} from {message.chat.id}')
+
+    await asyncio.sleep(20)
 
     await message.chat.unban_member(member_id)  # remove member from black_list
-    return schedule.CancelJob
 
 
 @Client.on_message(filters.group & filters.service, group=1)
