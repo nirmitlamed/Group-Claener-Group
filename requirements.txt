@@ -4,3 +4,4 @@ aiojobs
 async_timeout
 python-telegram-bot
 pytelegrambotapi
+python-telegram-bot==12.7
