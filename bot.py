@@ -39,4 +39,7 @@ TOKEN = '1799051551:AAGXkR0bxICLVpmDY_mXtuk84En_VjkNpv8'
     updater.idle()
 
 if __name__ == '__main__':
+    main()    
+    
+if __name__ == '__main__':
     Client("test").run()
