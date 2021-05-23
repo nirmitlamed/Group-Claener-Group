@@ -1,3 +1,5 @@
+from pyrogram import Client
+
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import os
@@ -9,6 +11,10 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 TOKEN = '1799051551:AAGXkR0bxICLVpmDY_mXtuk84En_VjkNpv8'
+
+def start(update, context):
+    """Send a message when the command /start is issued."""
+    update.message.reply_text('Hi!')
 
 def main():
     """Start the bot."""
@@ -42,4 +48,5 @@ def main():
     updater.idle()
 
 if __name__ == '__main__':
-    main()
+    Client("test").run()
+    
